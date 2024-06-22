@@ -71,6 +71,7 @@ const transitions = {
 
     '{"state":"q13","symbol":"1Y"}': { newState: 'q13', writeSymbol: '10', direction: 'SL' },
     '{"state":"q13","symbol":"1X"}': { newState: 'q13', writeSymbol: '10', direction: 'SL' },
+    '{"state":"q13","symbol":"10"}': { newState: 'q15', writeSymbol: '10', direction: 'SS' },
     '{"state":"q13","symbol":"1 "}': { newState: 'q15', writeSymbol: '1 ', direction: 'SS' },
 
 }
