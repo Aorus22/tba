@@ -1,15 +1,15 @@
 import chalk from "chalk";
 
 class TuringMachine {
-    constructor({ states, inputAlphabet, tapeAlphabet, transitions, initialState, blankSymbol, finalStates }) {
+    constructor({ states, inputAlphabet, tapeAlphabet, transitions, initialState, blankSymbol, finalStates, totalTapes }) {
         this.states = states;
         this.inputAlphabet = inputAlphabet;
         this.tapeAlphabet = tapeAlphabet;
         this.transitions = transitions;
-        this.initialState = initialState;
         this.blankSymbol = blankSymbol;
         this.finalStates = finalStates;
-        this.currentStates = [initialState]; 
+        this.currentStates = initialState; 
+        this.totalTapes = totalTapes
         this.tapes = [
             {
                 content: [],
@@ -18,17 +18,41 @@ class TuringMachine {
         ]; 
     }
 
-    addTapes(inputs = ['']) {
-        this.tapes = inputs.map(input => ({ content: [...input], head: 0 }));
+    addTapes(inputs = ['']) {   
+        this.tapes = inputs.map(input => ({ content: [input], head: 0 }));
     }
 
     async run() {
-        while (!this.finalStates.some(finalState => this.currentStates.includes(finalState))) {
+        while (!this.currentStates.includes(this.finalStates)) {
             console.log(`States: ${this.currentStates.join(', ')}, Tapes: ${this.getTapesWithHighlight()}`);
     
-            const transitionKeys = this.currentStates.map((state, idx) => {
-                const currentSymbol = this.tapes[idx].content[this.tapes[idx].head] || this.blankSymbol;
-                return JSON.stringify({ state, symbol: [currentSymbol] }); // symbol diubah menjadi array
+            const getTransitionKeys = () => {
+                let currentSymbols = []
+
+                for (let i = 0; i < this.totalTapes; i++){
+                    const currentHead = this.tapes[i].head
+                    const symbol = this.tapes[i].content[currentHead] || this.blankSymbol
+                    currentSymbols.push(symbol)
+                }
+
+                return JSON.stringify({ state: this.states, symbol: currentSymbols });
+            }
+
+            const transitionKeys1 = this.currentStates.map((state, idx) => {
+                let currentSymbols = [];
+            
+                // Ambil simbol dari pita, dimulai dari head, sebanyak tapeAlphabet.length (maksimal)
+                for (let i = 0; i < this.tapeAlphabet.length; i++) {
+                    const symbol = this.tapes[idx].content[this.tapes[idx].head + i] || this.blankSymbol;
+                    currentSymbols.push(symbol);
+            
+                    // Berhenti jika sudah mencapai simbol yang cukup
+                    if (currentSymbols.length === this.tapeAlphabet.length) {
+                        break;
+                    }
+                }
+            
+                return JSON.stringify({ state, symbol: currentSymbols });
             });
     
             let allValidTransitions = true;
